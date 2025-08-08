@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#EDEDED",
     borderRadius: 10,
     paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingVertical: 2,
     width: "100%",
   },
   inputRow: {

@@ -68,7 +68,6 @@ const styles = StyleSheet.create({
   buttonBase: {
     borderRadius: 10,
     paddingHorizontal: 10,
-    paddingVertical: 2,
     elevation: 6,
     width: "100%",
   },

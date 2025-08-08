@@ -1,11 +1,59 @@
 import CustomButton from "@/components/CustomButton";
 import TextInput from "@/components/TextInput";
+import { useAuth } from "@/context/auth";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { Link } from "expo-router";
 import { useState } from "react";
-import { Image, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+
+const GoogleLogin = async () => {
+  await GoogleSignin.hasPlayServices();
+  const userInfo = await GoogleSignin.signIn();
+  return userInfo;
+};
 export default function Login() {
-  const [selectedGender, setSelectedGender] = useState("Male");
-  const [userInfo, setUserInfo] = useState<any>(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const { user, isLoading } = useAuth();
+  const { signIn } = useAuth();
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
+  // const handleGoogleLogin = async () => {
+  // 		setLoading(true);
+  // 		try {
+  // 			const response = await GoogleLogin();
+  // 			const { idToken, user } = response;
+
+  // 			if (idToken) {
+  // 				const resp = await authAPI.validateToken({
+  // 					token: idToken,
+  // 					email: user.email,
+  // 				});
+  // 				await handlePostLoginData(resp.data);
+  // 			}
+  // 		} catch (apiError) {
+  // 			setError(
+  // 				apiError?.response?.data?.error?.message || 'Something went wrong'
+  // 			);
+  // 		} finally {
+  // 			setLoading(false);
+  // 		}
+  // 	};
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Login</Text>

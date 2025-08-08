@@ -7,10 +7,6 @@ import { router } from "expo-router";
 export default function Index() {
   const { fontsLoaded } = useCustomFonts();
 
-  if (!fontsLoaded) {
-    return null;
-  }
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>StudyPal</Text>
