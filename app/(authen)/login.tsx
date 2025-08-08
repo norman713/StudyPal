@@ -1,0 +1,104 @@
+import CustomButton from "@/components/CustomButton";
+import TextInput from "@/components/TextInput";
+import { Link } from "expo-router";
+import { useState } from "react";
+import { Image, SafeAreaView, StyleSheet, Text, View } from "react-native";
+export default function Login() {
+  const [selectedGender, setSelectedGender] = useState("Male");
+  const [userInfo, setUserInfo] = useState<any>(null);
+  return (
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>Login</Text>
+      <View style={styles.containerSmall}>
+        <TextInput placeholder={"Type your email"} />
+        <TextInput placeholder="Enter your password" isPassword />
+        <Link style={styles.link} href="/(authen)/forgot">
+          Forgot password?
+        </Link>
+      </View>
+
+      <View style={styles.containerSmall}>
+        <CustomButton>Login</CustomButton>
+        <View style={styles.divideContainer}>
+          <View style={styles.divideLine}></View>
+          <Text style={styles.option}>Or</Text>
+          <View style={styles.divideLine}></View>
+        </View>
+        <CustomButton
+          bgColor="#FFFFFF"
+          textColor="#1E282DA6"
+          fontFamily="Poppins_400Regular"
+          icon={
+            <Image
+              source={require("@/assets/images/google-icon.png")}
+              style={{ width: 30, height: 30 }}
+            />
+          }
+        >
+          Login with Google
+        </CustomButton>
+      </View>
+
+      <Text style={styles.footerText}>
+        Don't have an account?{" "}
+        <Link style={styles.signUpLink} href="/(authen)/register">
+          Sign up here
+        </Link>
+      </Text>
+    </SafeAreaView>
+  );
+}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 25,
+    backgroundColor: "white",
+    gap: 30,
+  },
+  containerSmall: {
+    width: "100%",
+    gap: 10,
+  },
+  title: {
+    fontFamily: "PlusJakartaSans_700Bold",
+    fontSize: 36,
+    color: "#7AB2D3",
+    textAlign: "center",
+  },
+  link: {
+    textAlign: "right",
+    color: "#7AB2D3",
+    fontSize: 15,
+    fontFamily: "Roboto_700Bold",
+  },
+  logiGGBtn: {
+    backgroundColor: "#FFF",
+  },
+  divideLine: {
+    flex: 1,
+    height: 2,
+    backgroundColor: "#9E9E9E",
+  },
+  divideContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 10,
+  },
+  option: {
+    marginHorizontal: 10,
+    color: "#9E9E9E",
+    fontSize: 16,
+  },
+  footerText: {
+    fontFamily: "Roboto_400Regular",
+    textAlign: "center",
+    fontSize: 16,
+  },
+  signUpLink: {
+    color: "#7AB2D3",
+    fontFamily: "Roboto_700Bold",
+    fontWeight: "bold",
+  },
+});
