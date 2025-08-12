@@ -1,13 +1,42 @@
+import authApi from "@/api/authApi";
 import BackButton from "@/components/BackButton";
 import CustomButton from "@/components/CustomButton";
 import TextInput from "@/components/TextInput";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import { SafeAreaView, StyleSheet, Text, View } from "react-native";
 
-export default function Register() {
-  const handleSendCode = () => {
-    router.push("/(authen)/verification");
+export default function Forgot() {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showError, setShowError] = useState(false);
+
+  const handleSendCode = async () => {
+    const mail = email.trim();
+    if (!mail) {
+      setShowError(true);
+      return;
+    }
+
+    setLoading(true);
+    setShowError(false);
+    try {
+      await authApi.sendResetCode(mail);
+      await AsyncStorage.setItem("resetEmail", mail);
+      router.push({
+        pathname: "/(authen)/verification",
+        params: { email: mail },
+      });
+    } catch (err: any) {
+      console.error(
+        "Send reset code error:",
+        err?.response?.data || err?.message || err
+      );
+      setShowError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -21,8 +50,16 @@ export default function Register() {
           </Text>
         </View>
 
-        <TextInput placeholder={"Enter your email"} />
-        <CustomButton onPress={handleSendCode}>Send code</CustomButton>
+        <TextInput
+          value={email}
+          onChangeText={setEmail}
+          placeholder="Enter your email"
+        />
+        {showError && <Text style={{ color: "red" }}>Email is required</Text>}
+
+        <CustomButton onPress={loading ? undefined : handleSendCode}>
+          {loading ? "Sending..." : "Send code"}
+        </CustomButton>
       </View>
     </SafeAreaView>
   );

@@ -1,13 +1,44 @@
+import authApi from "@/api/authApi";
 import BackButton from "@/components/BackButton";
 import CustomButton from "@/components/CustomButton";
-import Select from "@/components/Select";
 import TextInput from "@/components/TextInput";
 import { router } from "expo-router";
-import { useState } from "react";
+import React, { useState } from "react";
 import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+
 export default function Register() {
-  const [selectedGender, setSelectedGender] = useState("Male");
-  const [userInfo, setUserInfo] = useState<any>(null);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [pass, setPass] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
+
+  const handleValidate = async () => {
+    const n = name.trim();
+    const m = email.trim();
+    if (!n || !m || !pass || !confirm) return setErr("Please fill all fields");
+    if (pass !== confirm) return setErr("Passwords do not match");
+
+    setErr("");
+    setLoading(true);
+    try {
+      await authApi.registerValidate(n, m, pass);
+      router.push({
+        pathname: "/(authen)/verification",
+        params: { email: m, name: n },
+      });
+    } catch (e: any) {
+      console.error(
+        "Register validate error:",
+        e?.response?.data || e?.message || e
+      );
+      setErr("Validation failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <BackButton />
@@ -15,28 +46,34 @@ export default function Register() {
         <View style={styles.contentAbove}>
           <Text style={styles.title}>Register</Text>
           <View style={styles.containerSmall}>
-            <TextInput placeholder={"Enter your username"} />
-            <TextInput placeholder={"Enter your email"} />
             <TextInput
-              placeholder="Choose your birthday"
-              isDate
-              onChangeText={(isoDate) =>
-                console.log("Ngày được chọn:", isoDate)
-              }
+              placeholder="Enter your username"
+              value={name}
+              onChangeText={setName}
             />
-            <Select
-              value={selectedGender}
-              onChange={(value) => {
-                setSelectedGender(value);
-              }}
-              options={["Male", "Female", "Others"]}
+            <TextInput
+              placeholder="Enter your email"
+              value={email}
+              onChangeText={setEmail}
             />
-            <TextInput placeholder="Enter your password" isPassword />
-            <TextInput placeholder="Retype your password" isPassword />
+            <TextInput
+              placeholder="Enter your password"
+              isPassword
+              value={pass}
+              onChangeText={setPass}
+            />
+            <TextInput
+              placeholder="Retype your password"
+              isPassword
+              value={confirm}
+              onChangeText={setConfirm}
+            />
+            {!!err && <Text style={{ color: "red" }}>{err}</Text>}
           </View>
         </View>
-        <CustomButton onPress={() => router.push("/(authen)/login")}>
-          Register
+
+        <CustomButton onPress={loading ? undefined : handleValidate}>
+          {loading ? "Validating..." : "Continue"}
         </CustomButton>
       </View>
     </SafeAreaView>

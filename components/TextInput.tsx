@@ -15,6 +15,7 @@ import {
 interface TextInputProps {
   placeholder: string;
   style?: ViewStyle;
+  value?: string;
   onChangeText?: (text: string) => void;
   editable?: boolean;
   isPassword?: boolean;
@@ -24,6 +25,7 @@ interface TextInputProps {
 export default function LoginInput({
   placeholder,
   style,
+  value,
   onChangeText,
   editable = true,
   isPassword = false,
@@ -54,7 +56,8 @@ export default function LoginInput({
           placeholder={placeholder}
           editable={editable && !isDate}
           secureTextEntry={secure}
-          value={isDate ? formattedDate : undefined}
+          value={isDate ? formattedDate : value}
+          onChangeText={onChangeText}
           style={styles.input}
           pointerEvents={isDate ? "none" : "auto"}
         />

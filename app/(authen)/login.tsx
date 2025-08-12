@@ -1,8 +1,10 @@
+import authApi from "@/api/authApi";
 import CustomButton from "@/components/CustomButton";
 import TextInput from "@/components/TextInput";
 import { useAuth } from "@/context/auth";
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import { Link } from "expo-router";
+import { isValidEmail } from "@/util/validators";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Link, router } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -13,17 +15,16 @@ import {
   View,
 } from "react-native";
 
-const GoogleLogin = async () => {
-  await GoogleSignin.hasPlayServices();
-  const userInfo = await GoogleSignin.signIn();
-  return userInfo;
-};
 export default function Login() {
-  const [error, setError] = useState("");
+  const [loginRequest, setLoginRequest] = useState({
+    email: "",
+    password: "",
+  });
+  const [showError, setShowError] = useState(false);
+  const [message, setMessage] = useState({ title: "", description: "" });
   const [loading, setLoading] = useState(false);
 
-  const { user, isLoading } = useAuth();
-  const { signIn } = useAuth();
+  const { isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -33,45 +34,82 @@ export default function Login() {
     );
   }
 
-  // const handleGoogleLogin = async () => {
-  // 		setLoading(true);
-  // 		try {
-  // 			const response = await GoogleLogin();
-  // 			const { idToken, user } = response;
+  const handleLogin = async () => {
+    if (loginRequest.email == "" || loginRequest.password == "") {
+      setShowError(true);
+      setMessage({
+        title: "Error",
+        description: "The email or password is empty.",
+      });
+      return;
+    }
+    if (!isValidEmail(loginRequest.email)) {
+      setShowError(true);
+      setMessage({
+        title: "Error",
+        description: "Invalid email format.",
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await authApi.login(
+        loginRequest.email,
+        loginRequest.password
+      );
+      const { accessToken, refreshToken } = response;
+      await AsyncStorage.setItem("accessToken", accessToken);
+      await AsyncStorage.setItem("refreshToken", refreshToken);
+      setShowError(false);
+      setMessage({ title: "", description: "" });
+      // const userInfo = await authApi.getUserInfo();
+      // setUser(userInfo);
+      router.push("/(me)/main");
+    } catch (err) {
+      setShowError(true);
+      setMessage({
+        title: "Login failed",
+        description: "Email or password is incorrect.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // 			if (idToken) {
-  // 				const resp = await authAPI.validateToken({
-  // 					token: idToken,
-  // 					email: user.email,
-  // 				});
-  // 				await handlePostLoginData(resp.data);
-  // 			}
-  // 		} catch (apiError) {
-  // 			setError(
-  // 				apiError?.response?.data?.error?.message || 'Something went wrong'
-  // 			);
-  // 		} finally {
-  // 			setLoading(false);
-  // 		}
-  // 	};
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Login</Text>
+
       <View style={styles.containerSmall}>
-        <TextInput placeholder={"Type your email"} />
-        <TextInput placeholder="Enter your password" isPassword />
+        <TextInput
+          placeholder="Type your email"
+          value={loginRequest.email}
+          onChangeText={(text) =>
+            setLoginRequest((prev) => ({ ...prev, email: text }))
+          }
+        />
+        <TextInput
+          placeholder="Enter your password"
+          isPassword
+          value={loginRequest.password}
+          onChangeText={(text) =>
+            setLoginRequest((prev) => ({ ...prev, password: text }))
+          }
+        />
+
         <Link style={styles.link} href="/(authen)/forgot">
           Forgot password?
         </Link>
       </View>
 
       <View style={styles.containerSmall}>
-        <CustomButton>Login</CustomButton>
+        <CustomButton onPress={handleLogin}>Login</CustomButton>
         <View style={styles.divideContainer}>
-          <View style={styles.divideLine}></View>
+          <View style={styles.divideLine} />
           <Text style={styles.option}>Or</Text>
-          <View style={styles.divideLine}></View>
+          <View style={styles.divideLine} />
         </View>
+
         <CustomButton
           bgColor="#FFFFFF"
           textColor="#1E282DA6"
@@ -96,6 +134,7 @@ export default function Login() {
     </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -105,10 +144,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     gap: 30,
   },
-  containerSmall: {
-    width: "100%",
-    gap: 10,
-  },
+  containerSmall: { width: "100%", gap: 10 },
   title: {
     fontFamily: "PlusJakartaSans_700Bold",
     fontSize: 36,
@@ -121,24 +157,14 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: "Roboto_700Bold",
   },
-  logiGGBtn: {
-    backgroundColor: "#FFF",
-  },
-  divideLine: {
-    flex: 1,
-    height: 2,
-    backgroundColor: "#9E9E9E",
-  },
+  logiGGBtn: { backgroundColor: "#FFF" },
+  divideLine: { flex: 1, height: 2, backgroundColor: "#9E9E9E" },
   divideContainer: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 10,
   },
-  option: {
-    marginHorizontal: 10,
-    color: "#9E9E9E",
-    fontSize: 16,
-  },
+  option: { marginHorizontal: 10, color: "#9E9E9E", fontSize: 16 },
   footerText: {
     fontFamily: "Roboto_400Regular",
     textAlign: "center",
