@@ -21,6 +21,7 @@ axiosInstance.interceptors.request.use(
       url.includes("/auth/cred") ||
       url.includes("/auth/register") ||
       url.includes("/auth/verify/register") ||
+      url.includes("/auth/verify/reset") ||
       url.includes("/auth/reset") ||
       url.includes("/auth/validate") ||
       url.includes("/auth/code") ||

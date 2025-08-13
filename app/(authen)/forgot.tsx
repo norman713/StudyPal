@@ -2,6 +2,7 @@ import authApi from "@/api/authApi";
 import BackButton from "@/components/BackButton";
 import CustomButton from "@/components/CustomButton";
 import TextInput from "@/components/TextInput";
+import { isValidEmail } from "@/util/validators";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -11,34 +12,57 @@ export default function Forgot() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [showError, setShowError] = useState(false);
-
+  const [message, setMessage] = useState({ title: "", description: "" });
   const handleSendCode = async () => {
-    const mail = email.trim();
-    if (!mail) {
+    setShowError(false);
+    setMessage({ title: "", description: "" });
+
+    const emailTrim = email.trim();
+
+    // 1) Validate input
+    if (!emailTrim) {
       setShowError(true);
+      setMessage({ title: "Error", description: "Please fill in email" });
+      return;
+    }
+    if (!isValidEmail(emailTrim)) {
+      setShowError(true);
+      setMessage({ title: "Error", description: "Invalid email format." });
       return;
     }
 
+    // 2) Call API
     setLoading(true);
-    setShowError(false);
     try {
-      await authApi.sendResetCode(mail);
-      await AsyncStorage.setItem("resetEmail", mail);
+      const res = await authApi.code("RESET_PASSWORD", emailTrim);
+      console.log("Success", res.success);
+      if (!res.success) {
+        setShowError(true);
+        setMessage({
+          title: "Send code failed",
+          description: res.message || "Failed to send reset code.",
+        });
+        return;
+      }
+
+      await AsyncStorage.setItem("resetEmail", emailTrim);
+
       router.push({
-        pathname: "/(authen)/verification",
-        params: { email: mail },
+        pathname: "/(authen)/verify",
+        params: { email: emailTrim },
       });
     } catch (err: any) {
-      console.error(
-        "Send reset code error:",
-        err?.response?.data || err?.message || err
-      );
+      const apiMessage =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err?.message ||
+        "Failed to send reset code.";
       setShowError(true);
+      setMessage({ title: "Send code failed", description: apiMessage });
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <SafeAreaView style={styles.container}>
       <BackButton />
@@ -55,8 +79,9 @@ export default function Forgot() {
           onChangeText={setEmail}
           placeholder="Enter your email"
         />
-        {showError && <Text style={{ color: "red" }}>Email is required</Text>}
-
+        {showError && (
+          <Text style={{ color: "red" }}>{message.description}</Text>
+        )}
         <CustomButton onPress={loading ? undefined : handleSendCode}>
           {loading ? "Sending..." : "Send code"}
         </CustomButton>

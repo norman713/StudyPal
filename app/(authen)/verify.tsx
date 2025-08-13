@@ -14,13 +14,14 @@ function formatMMSS(totalSeconds: number) {
 
 type RouteParams = { email?: string };
 
-export default function RegisterVerify() {
+export default function Verify() {
   const { email } = useLocalSearchParams<RouteParams>();
   const [code, setCode] = useState("");
   const [time, setTime] = useState(300);
   const [running, setRunning] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState("");
+  const [showError, setShowError] = useState(false);
+  const [message, setMessage] = useState({ title: "", description: "" });
 
   // counter
   useEffect(() => {
@@ -33,33 +34,96 @@ export default function RegisterVerify() {
 
   // handlers
   const handleVerify = async () => {
-    if (!code.trim()) return setErr("Please enter the verification code");
-    if (!email) return setErr("Missing email. Please register again.");
+    setShowError(false);
+    setMessage({ title: "", description: "" });
 
-    setErr("");
+    // validate
+    const codeTrim = code.trim();
+    const emailTrim = (email || "").trim();
+
+    if (!codeTrim) {
+      setShowError(true);
+      setMessage({
+        title: "Error",
+        description: "Please enter the verification code",
+      });
+      return;
+    }
+    if (!emailTrim) {
+      setShowError(true);
+      setMessage({
+        title: "Error",
+        description: "Missing email. Please register again.",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
-      await authApi.verifyRegister(email.trim(), code.trim());
-      router.push("/(authen)/success");
+      const res = await authApi.verifyReset(emailTrim, codeTrim);
+      if (!res.success) {
+        setShowError(true);
+        setMessage({
+          title: "Verification failed",
+          description: res.message || "Verification failed",
+        });
+        return;
+      }
+
+      router.push({
+        pathname: "/(authen)/reset",
+        params: { email: emailTrim },
+      });
     } catch (e: any) {
-      setErr(e?.response?.data?.message || "Verification failed");
+      const apiMessage =
+        e?.response?.data?.message ||
+        e?.response?.data?.error ||
+        e?.message ||
+        "Verification failed";
+      setShowError(true);
+      setMessage({ title: "Verification failed", description: apiMessage });
     } finally {
       setLoading(false);
     }
   };
-
   const handleResend = async () => {
-    if (!email || !email.trim())
-      return setErr("Missing email. Please register again.");
+    // reset error
+    setShowError(false);
+    setMessage({ title: "", description: "" });
 
-    setErr("");
+    const emailTrim = (email || "").trim();
+    if (!emailTrim) {
+      setShowError(true);
+      setMessage({
+        title: "Error",
+        description: "Missing email. Please register again.",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
-      await authApi.code("REGISTER", email.trim());
-      setTime(60);
+      const res = await authApi.code("RESET_PASSWORD", emailTrim);
+
+      if (!res.success) {
+        setShowError(true);
+        setMessage({
+          title: "Resend failed",
+          description: res.message || "Failed to resend code",
+        });
+        return;
+      }
+
+      setTime(300);
       setRunning(true);
     } catch (e: any) {
-      setErr(e?.response?.data?.message || "Failed to resend code");
+      const apiMessage =
+        e?.response?.data?.message ||
+        e?.response?.data?.error ||
+        e?.message ||
+        "Failed to resend code";
+      setShowError(true);
+      setMessage({ title: "Resend failed", description: apiMessage });
     } finally {
       setLoading(false);
     }
@@ -81,6 +145,9 @@ export default function RegisterVerify() {
           onChangeText={setCode}
           placeholder={"Enter verification code"}
         />
+        {showError && (
+          <Text style={{ color: "red" }}>{message.description}</Text>
+        )}
 
         <View>
           <Text style={styles.countdown}>{label}</Text>

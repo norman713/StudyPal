@@ -3,8 +3,12 @@ import axiosInstance from "./axiosConfig";
 interface LoginResponse {
   accessToken: string;
   refreshToken: string;
-
 }
+export type ApiResponse<T = unknown> = {
+  success: boolean;
+  message?: string;
+  data?: T;
+};
 const authApi = {
 
   login(email: string, password: string): Promise<LoginResponse> {
@@ -33,7 +37,7 @@ const authApi = {
   },
 
  // send - resend code
-  code(type:"REGISTER"| "RESET_PASSWORD", email:string){
+  code(type:"REGISTER"| "RESET_PASSWORD", email:string):Promise<ApiResponse>{
     const url="/auth/code"
     const body={type, email}
     return axiosInstance.post(url, body);
@@ -44,12 +48,12 @@ const authApi = {
   // 2: call api verifyReset to verify code received
   // 3: call api reset
 
-  verifyReset(email:string, code:string){
+  verifyReset(email:string, code:string):Promise<ApiResponse>{
     const url="/auth/verify/reset";
     const body={email, code};
     return axiosInstance.post(url,body);
   },
-  reset(email:string, newPassword:string){
+  reset(email:string, newPassword:string):Promise<ApiResponse>{
     const url="/auth/reset";
     const body={email, newPassword};
     return axiosInstance.post(url, body);
