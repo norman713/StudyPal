@@ -17,8 +17,14 @@ The project is based on the open-source [SelfStudy](https://github.com/norman713
 
 ## 🚀 Getting Started
 
-### 1️⃣ Install dependencies
+### 1. Install dependencies
 
 ```bash
 npm install
+```
+
+### 2. Start the project
+
+```bash
+npm start
 ```

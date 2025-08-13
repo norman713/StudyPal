@@ -15,6 +15,7 @@
     "@expo-google-fonts/poppins": "^0.4.0",
     "@expo-google-fonts/roboto": "^0.4.0",
     "@expo/vector-icons": "^14.1.0",
+    "@react-native-async-storage/async-storage": "2.1.2",
     "@react-native-community/datetimepicker": "8.4.1",
     "@react-native-google-signin/google-signin": "^15.0.0",
     "@react-navigation/bottom-tabs": "^7.3.10",
@@ -48,8 +49,7 @@
     "react-native-svg": "^15.12.1",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
-    "undefined": "expo-auth-session/providers/google",
-    "@react-native-async-storage/async-storage": "2.1.2"
+    "undefined": "expo-auth-session/providers/google"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

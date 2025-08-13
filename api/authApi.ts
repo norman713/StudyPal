@@ -5,13 +5,6 @@ interface LoginResponse {
   refreshToken: string;
 
 }
-interface UserInfoResponse {
-  username: string;
-  dateOfBirth: string;
-  gender: string;
-  avatarUrl: string;
-  id: string
-}
 const authApi = {
 
   login(email: string, password: string): Promise<LoginResponse> {

@@ -35,15 +35,20 @@ export default function Login() {
   }
 
   const handleLogin = async () => {
-    if (loginRequest.email == "" || loginRequest.password == "") {
+    // Reset error
+    setShowError(false);
+    setMessage({ title: "", description: "" });
+    // 1. Validate local
+    if (!loginRequest.email.trim() || !loginRequest.password.trim()) {
       setShowError(true);
       setMessage({
         title: "Error",
-        description: "The email or password is empty.",
+        description: "Please fill in both email and password.",
       });
       return;
     }
-    if (!isValidEmail(loginRequest.email)) {
+    // validate email type
+    if (!isValidEmail(loginRequest.email.trim())) {
       setShowError(true);
       setMessage({
         title: "Error",
@@ -51,23 +56,30 @@ export default function Login() {
       });
       return;
     }
+    // call api
     setLoading(true);
     try {
-      const response = await authApi.login(
-        loginRequest.email,
-        loginRequest.password
+      const { accessToken, refreshToken } = await authApi.login(
+        loginRequest.email.trim(),
+        loginRequest.password.trim()
       );
-      const { accessToken, refreshToken } = response;
+
       await AsyncStorage.setItem("accessToken", accessToken);
       await AsyncStorage.setItem("refreshToken", refreshToken);
+
+      // login success then hide error
       setShowError(false);
       setMessage({ title: "", description: "" });
+
       router.push("/(me)/main");
-    } catch (err) {
+    } catch (err: any) {
+      // catch error
+      const apiMessage =
+        err?.response?.data?.message || "Email or password is incorrect.";
       setShowError(true);
       setMessage({
         title: "Login failed",
-        description: "Email or password is incorrect.",
+        description: apiMessage,
       });
     } finally {
       setLoading(false);
@@ -101,6 +113,11 @@ export default function Login() {
       </View>
 
       <View style={styles.containerSmall}>
+        {showError && (
+          <Text style={{ color: "red", textAlign: "center", marginTop: 8 }}>
+            {message.description}
+          </Text>
+        )}
         <CustomButton onPress={handleLogin}>Login</CustomButton>
         <View style={styles.divideContainer}>
           <View style={styles.divideLine} />
