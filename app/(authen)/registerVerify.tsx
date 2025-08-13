@@ -11,7 +11,7 @@ function formatMMSS(totalSeconds: number) {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-export default function RegisterVerification() {
+export default function RegisterVerify() {
   const [time, setTime] = useState(60);
   const [running, setRunning] = useState(true);
 
