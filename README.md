@@ -1,50 +1,24 @@
-# Welcome to your Expo app 👋
+# 📚 StudyPal — Mobile Learning App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+StudyPal is a **cross-platform mobile application** built with [Expo](https://expo.dev) and **React Native**, designed to support self-study and personal learning.  
+The project is based on the open-source [SelfStudy](https://github.com/norman713/SelfStudy) repository, with custom features and UI improvements.
 
-## Get started
+---
 
-1. Install dependencies
+## ✨ Features
 
-   ```bash
-   npm install
-   ```
+- 📱 **Cross-platform** — Runs on Android and website using a single codebase.
+- 🗂 **File-based routing** with [expo-router](https://docs.expo.dev/router/introduction/).
+- 🔐 **Authentication system** — Register, login, and logout via backend API.
+- 🎨 **Reusable components** — Custom UI elements for inputs, buttons, and navigation...
+- ⚡ **Fast development** — Powered by Expo’s Dev Tools and hot reloading.
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## 🚀 Getting Started
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### 1️⃣ Install dependencies
 
 ```bash
-npm run reset-project
+npm install
 ```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
