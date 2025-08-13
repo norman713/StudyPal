@@ -25,7 +25,7 @@ export default function Register() {
     try {
       await authApi.registerValidate(n, m, pass);
       router.push({
-        pathname: "/(authen)/verification",
+        pathname: "/(authen)/registerVerification",
         params: { email: m, name: n },
       });
     } catch (e: any) {
