@@ -14,26 +14,24 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 
-  const handleValidate = async () => {
-    const n = name.trim();
-    const m = email.trim();
-    if (!n || !m || !pass || !confirm) return setErr("Please fill all fields");
-    if (pass !== confirm) return setErr("Passwords do not match");
+  const handleRegister = async () => {
+    if (!name.trim() || !email.trim() || !pass || !confirm) {
+      return setErr("Please fill all fields");
+    }
+    if (pass !== confirm) {
+      return setErr("Passwords do not match");
+    }
 
     setErr("");
     setLoading(true);
     try {
-      await authApi.registerValidate(n, m, pass);
+      await authApi.register(name.trim(), email.trim(), pass);
       router.push({
-        pathname: "/(authen)/registerVerification",
-        params: { email: m, name: n },
+        pathname: "/(authen)/registerVerify",
+        params: { email: email.trim(), name: name.trim() },
       });
     } catch (e: any) {
-      console.error(
-        "Register validate error:",
-        e?.response?.data || e?.message || e
-      );
-      setErr("Validation failed");
+      setErr(e?.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -72,7 +70,7 @@ export default function Register() {
           </View>
         </View>
 
-        <CustomButton onPress={loading ? undefined : handleValidate}>
+        <CustomButton onPress={loading ? undefined : handleRegister}>
           {loading ? "Validating..." : "Continue"}
         </CustomButton>
       </View>

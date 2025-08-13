@@ -19,9 +19,9 @@ const authApi = {
     const body = { email, password };
     return axiosInstance.post(url, body);
   },
-  logout():Promise<any>{
-const url ="/auth/logout";
-return axiosInstance.post(url);
+  logout() {
+    const url = "/auth/logout";
+    return axiosInstance.post(url);
   },
  
   // register
@@ -33,7 +33,7 @@ return axiosInstance.post(url);
     return axiosInstance.post(url,body);
   },
   
-    verifyRegiter( email: string, code: string) {
+    verifyRegister( email: string, code: string) {
     const url = "/auth/verify/register";
     const body = { email, code};
     return axiosInstance.post(url, body);

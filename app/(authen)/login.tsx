@@ -62,8 +62,6 @@ export default function Login() {
       await AsyncStorage.setItem("refreshToken", refreshToken);
       setShowError(false);
       setMessage({ title: "", description: "" });
-      // const userInfo = await authApi.getUserInfo();
-      // setUser(userInfo);
       router.push("/(me)/main");
     } catch (err) {
       setShowError(true);

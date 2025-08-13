@@ -4,7 +4,7 @@ import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from "ax
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
 const axiosInstance: AxiosInstance = axios.create({
-  baseURL: apiUrl,               // ví dụ: http://103.211.201.112:8080 hoặc http://.../api
+  baseURL: apiUrl,            
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
@@ -12,17 +12,18 @@ const axiosInstance: AxiosInstance = axios.create({
   },
 });
 
-// 1 request interceptor duy nhất
 axiosInstance.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     const url = (config.url || "").toLowerCase();
 
-    // Các endpoint auth public (KHÔNG gắn Bearer)
+    // endpoint for auth public (no Bearer)
     const isAuthPublic =
       url.includes("/auth/cred") ||
       url.includes("/auth/register") ||
+      url.includes("/auth/verify/register") ||
       url.includes("/auth/reset") ||
       url.includes("/auth/validate") ||
+      url.includes("/auth/code") ||
       url.includes("/auth/prov");
 
     if (!isAuthPublic) {
@@ -53,7 +54,7 @@ axiosInstance.interceptors.request.use(
   (error: AxiosError) => Promise.reject(error)
 );
 
-// Trả thẳng data
+// return data
 axiosInstance.interceptors.response.use(
   (response) => response.data,
   (error: AxiosError) => Promise.reject(error)

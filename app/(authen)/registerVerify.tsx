@@ -1,7 +1,8 @@
+import authApi from "@/api/authApi";
 import BackButton from "@/components/BackButton";
 import CustomButton from "@/components/CustomButton";
 import TextInput from "@/components/TextInput";
-import { Link, router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { SafeAreaView, StyleSheet, Text, View } from "react-native";
 
@@ -11,10 +12,17 @@ function formatMMSS(totalSeconds: number) {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-export default function RegisterVerify() {
-  const [time, setTime] = useState(60);
-  const [running, setRunning] = useState(true);
+type RouteParams = { email?: string };
 
+export default function RegisterVerify() {
+  const { email } = useLocalSearchParams<RouteParams>();
+  const [code, setCode] = useState("");
+  const [time, setTime] = useState(120);
+  const [running, setRunning] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
+
+  // counter
   useEffect(() => {
     if (!running || time <= 0) return;
     const id = setInterval(() => setTime((t) => t - 1), 1000);
@@ -22,14 +30,39 @@ export default function RegisterVerify() {
   }, [running, time]);
 
   const label = useMemo(() => formatMMSS(time), [time]);
-  const handleVerify = () => {
-    router.push("/(authen)/reset");
+
+  // handlers
+  const handleVerify = async () => {
+    if (!code.trim()) return setErr("Please enter the verification code");
+    if (!email) return setErr("Missing email. Please register again.");
+
+    setErr("");
+    setLoading(true);
+    try {
+      await authApi.verifyRegister(email.trim(), code.trim());
+      router.push("/(authen)/success");
+    } catch (e: any) {
+      setErr(e?.response?.data?.message || "Verification failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleResend = (e: any) => {
-    e?.preventDefault?.();
-    setTime(60);
-    setRunning(true);
+  const handleResend = async () => {
+    if (!email || !email.trim())
+      return setErr("Missing email. Please register again.");
+
+    setErr("");
+    setLoading(true);
+    try {
+      await authApi.code("REGISTER", email.trim());
+      setTime(60);
+      setRunning(true);
+    } catch (e: any) {
+      setErr(e?.response?.data?.message || "Failed to resend code");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -43,7 +76,11 @@ export default function RegisterVerify() {
           </Text>
         </View>
 
-        <TextInput placeholder={"Enter verification code"} />
+        <TextInput
+          value={code}
+          onChangeText={setCode}
+          placeholder={"Enter verification code"}
+        />
 
         <View>
           <Text style={styles.countdown}>{label}</Text>
@@ -52,13 +89,9 @@ export default function RegisterVerify() {
 
         <Text style={styles.footerText}>
           Didn’t receive a code?{" "}
-          <Link
-            style={styles.signUpLink}
-            href="/(authen)/register"
-            onPress={handleResend}
-          >
+          <Text style={styles.verifyLink} onPress={handleResend}>
             Resend
-          </Link>
+          </Text>
         </Text>
       </View>
     </SafeAreaView>
@@ -105,7 +138,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 16,
   },
-  signUpLink: {
+  verifyLink: {
     color: "#7AB2D3",
     fontFamily: "Roboto_700Bold",
   },
