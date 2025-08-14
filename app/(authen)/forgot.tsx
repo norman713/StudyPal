@@ -7,6 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import Loading from "../loading";
 
 export default function Forgot() {
   const [email, setEmail] = useState("");
@@ -63,34 +64,44 @@ export default function Forgot() {
       setLoading(false);
     }
   };
-  return (
-    <SafeAreaView style={styles.container}>
-      <BackButton />
-      <View style={styles.containerSmall}>
-        <View style={styles.top}>
-          <Text style={styles.title}>Forgot password</Text>
-          <Text style={styles.instruction}>
-            Please enter the email linked with your account
-          </Text>
-        </View>
 
-        <TextInput
-          value={email}
-          onChangeText={setEmail}
-          placeholder="Enter your email"
-        />
-        {showError && (
-          <Text style={{ color: "red" }}>{message.description}</Text>
-        )}
-        <CustomButton onPress={loading ? undefined : handleSendCode}>
-          {loading ? "Sending..." : "Send code"}
-        </CustomButton>
-      </View>
-    </SafeAreaView>
+  return (
+    <View style={styles.view}>
+      <SafeAreaView style={styles.container}>
+        <BackButton />
+        <View style={styles.containerSmall}>
+          <View style={styles.top}>
+            <Text style={styles.title}>Forgot password</Text>
+            <Text style={styles.instruction}>
+              Please enter the email linked with your account
+            </Text>
+          </View>
+
+          <TextInput
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Enter your email"
+          />
+          {showError && (
+            <Text style={{ color: "red" }}>{message.description}</Text>
+          )}
+          <CustomButton onPress={handleSendCode}>Send code</CustomButton>
+        </View>
+      </SafeAreaView>
+      {loading && (
+        <View style={styles.overlay}>
+          <Loading />
+        </View>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  view: {
+    flex: 1,
+    justifyContent: "flex-start",
+  },
   container: {
     flex: 1,
     justifyContent: "flex-start",
@@ -118,5 +129,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 16,
     width: "100%",
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.1)",
+    zIndex: 999,
   },
 });

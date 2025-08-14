@@ -1,6 +1,6 @@
 // loading.tsx
 import React, { useEffect, useRef } from "react";
-import { Animated, Easing, Platform, StyleSheet, View } from "react-native";
+import { Animated, Easing, Platform, View } from "react-native";
 import Svg, { Circle, Defs, LinearGradient, Stop } from "react-native-svg";
 
 export default function Loading() {
@@ -25,7 +25,7 @@ export default function Loading() {
   });
 
   return (
-    <View style={styles.container}>
+    <View>
       <Animated.View style={{ transform: [{ rotate: spin }] }}>
         <Svg height={200} width={200} viewBox="0 0 200 200">
           <Defs>
@@ -50,12 +50,3 @@ export default function Loading() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#E5E5E5",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});

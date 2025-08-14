@@ -153,8 +153,9 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    paddingTop: 165,
+    // justifyContent: "center",
+    // alignItems: "center",
     paddingHorizontal: 25,
     backgroundColor: "white",
     gap: 30,
