@@ -6,14 +6,8 @@ import { isValidEmail } from "@/util/validators";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link, router } from "expo-router";
 import { useState } from "react";
-import {
-  ActivityIndicator,
-  Image,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Image, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import Loading from "../loading";
 
 export default function Login() {
   const [loginRequest, setLoginRequest] = useState({
@@ -29,7 +23,7 @@ export default function Login() {
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator />
+        <Loading />
       </View>
     );
   }
@@ -146,6 +140,11 @@ export default function Login() {
           Sign up here
         </Link>
       </Text>
+      {loading && (
+        <View style={styles.overlay}>
+          <Loading />
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -154,8 +153,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 165,
-    // justifyContent: "center",
-    // alignItems: "center",
     paddingHorizontal: 25,
     backgroundColor: "white",
     gap: 30,
@@ -190,5 +187,12 @@ const styles = StyleSheet.create({
     color: "#7AB2D3",
     fontFamily: "Roboto_700Bold",
     fontWeight: "bold",
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.1)",
+    zIndex: 999,
   },
 });

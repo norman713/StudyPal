@@ -5,6 +5,7 @@ import TextInput from "@/components/TextInput";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import Loading from "../loading";
 
 function formatMMSS(totalSeconds: number) {
   const m = Math.floor(totalSeconds / 60);
@@ -94,6 +95,11 @@ export default function RegisterVerify() {
           </Text>
         </Text>
       </View>
+      {loading && (
+        <View style={styles.overlay}>
+          <Loading />
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -141,5 +147,12 @@ const styles = StyleSheet.create({
   verifyLink: {
     color: "#7AB2D3",
     fontFamily: "Roboto_700Bold",
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.1)",
+    zIndex: 999,
   },
 });
