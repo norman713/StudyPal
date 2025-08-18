@@ -57,7 +57,7 @@ export default function RegisterVerify() {
     setLoading(true);
     try {
       await authApi.code("REGISTER", email.trim());
-      setTime(60);
+      setTime(300);
       setRunning(true);
     } catch (e: any) {
       setErr(e?.response?.data?.message || "Failed to resend code");
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(0,0,0,0.1)",
+    backgroundColor: "rgba(0,0,0,0.2)",
     zIndex: 999,
   },
 });
