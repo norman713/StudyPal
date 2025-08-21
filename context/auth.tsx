@@ -171,24 +171,70 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Xử lý phản hồi
   React.useEffect(() => {
-    if (!response) return;
+    const exchangeCodeForToken = async (code: string) => {
+      try {
+        const body = {
+          code,
+          client_id: ANDROID_CLIENT_ID,
+          grant_type: "authorization_code",
+          redirect_uri: request?.redirectUri,
+          code_verifier: request?.codeVerifier,
+        };
+        const res = await fetch(TOKEN_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: Object.entries(body)
+            .map(
+              ([k, v]) =>
+                `${encodeURIComponent(k)}=${encodeURIComponent(v ?? "")}`
+            )
+            .join("&"),
+        });
+        const tokenData = await res.json();
+        dump("Token response", tokenData);
+        if (!tokenData.access_token)
+          throw new Error("Không lấy được access_token");
 
+        // Lưu token vào SecureStore
+        await SecureStore.setItemAsync(ACCESS_KEY, tokenData.access_token);
+        if (tokenData.id_token)
+          await SecureStore.setItemAsync(IDTOKEN_KEY, tokenData.id_token);
+        if (tokenData.refresh_token)
+          await SecureStore.setItemAsync(REFRESH_KEY, tokenData.refresh_token);
+
+        // Lấy thông tin user
+        const userRes = await fetch(USERINFO_ENDPOINT, {
+          headers: { Authorization: `Bearer ${tokenData.access_token}` },
+        });
+        const userInfo = await userRes.json();
+        dump("UserInfo", userInfo);
+        setUser({
+          id: userInfo.sub,
+          email: userInfo.email,
+          name: userInfo.name,
+          picture: userInfo.picture,
+          given_name: userInfo.given_name,
+          family_name: userInfo.family_name,
+          email_verified: userInfo.email_verified,
+        });
+      } catch (err: any) {
+        setError(err);
+        console.error("Lỗi khi trao đổi code lấy token/user:", err);
+      }
+    };
+
+    if (!response) return;
     if (response.type === "success") {
-      const { code, ...rest } = response.params as any;
-      if (!code) {
-        // hiếm khi, success nhưng không có code
-        dump("Auth success nhưng thiếu code", rest);
+      const { code } = response.params as any;
+      if (code) {
+        exchangeCodeForToken(code);
       } else {
-        console.log("Auth success – code:", code);
-        dump("Các params khác", rest);
+        dump("Auth success nhưng thiếu code", response.params);
       }
     } else if (response.type === "error") {
-      // Lỗi do AuthSession
-      console.error("AuthSession error:", response.error);
+      setError(response.error as Error);
       dump("AuthSession error params", (response as any).params);
     } else {
-      // cancel / dismiss / locked
-      console.warn("Auth flow kết thúc với type:", response.type);
       dump("AuthSession raw response", response);
     }
   }, [response]);
