@@ -1,7 +1,123 @@
-import { AuthError } from "expo-auth-session";
+// import {
+//   AuthError,
+//   AuthRequestConfig,
+//   DiscoveryDocument,
+//   makeRedirectUri,
+// } from "expo-auth-session";
+// // import { discovery } from "expo-auth-session/build/providers/Google";
+// import * as Google from "expo-auth-session/providers/google";
+// import * as WebBrowser from "expo-web-browser";
+// import * as React from "react";
+// import { useContext, useState } from "react";
+
+// WebBrowser.maybeCompleteAuthSession();
+
+// export type AuthUser = {
+//   id: string;
+//   email: string;
+//   name: string;
+//   picture?: string;
+//   given_name: string;
+//   family_name?: string;
+//   email_verified?: string;
+//   exp?: number;
+//   cookieExpiration?: number;
+// };
+// const AuthContext = React.createContext({
+//   user: null,
+//   signIn: () => {},
+//   signOut: () => {},
+//   fetchWithAuth: async (url: string, options?: RequestInit) =>
+//     Promise.resolve(new Response()),
+//   isLoading: false,
+//   error: null as AuthError | null,
+// });
+
+// const config: AuthRequestConfig = {
+//   clientId: "google",
+//   scopes: ["openid", "profile", "email"],
+//   redirectUri: makeRedirectUri(),
+// };
+
+// const discovery: DiscoveryDocument = {
+//   // authorizationEndpoint: `${BASE_URL}/api/auth/authorize`,
+//   // tokenEndpoint: `${BASE_URL}/api/auth/token`,,
+// };
+
+// export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+//   const [user, setUser] = useState<AuthUser | null>(null);
+//   const [isLoading, setIsLoading] = useState(false);
+//   const [error, setError] = useState<AuthError | null>(null);
+//   // const [request, response, promptAsync] = useAuthRequest(config, discovery);
+
+//   const [request, response, promptAsync] = Google.useAuthRequest({
+//     androidClientId:
+//       "1067957663886-sk4rkd325o5ld38hvevbl91tujkn146a.apps.googleusercontent.com",
+//     iosClientId: "<IOS_CLIENT_ID>.apps.googleusercontent.com",
+//     webClientId:
+//       "1067957663886-rqiovfuaqpsdeb8d42jmu104sri96her.apps.googleusercontent.com", // nếu chạy web
+//   });
+
+//   React.useEffect(() => {
+//     handleResponse();
+//   }, [response]);
+
+//   const handleResponse = async () => {
+//     if (response?.type === "success") {
+//       const { code } = response.params;
+
+//       console.log(code);
+//     } else if (response?.type === "error") {
+//       setError(response.error as AuthError);
+//     }
+//   };
+
+//   const signIn = async () => {
+//     try {
+//       if (!request) {
+//         console.log("no request");
+//         return;
+//       }
+
+//       await promptAsync();
+//     } catch (e) {
+//       console.log(e);
+//     }
+//     console.log("redirectUri app:", request?.redirectUri);
+//   };
+
+//   const signOut = async () => {};
+//   const fetchWithAuth = async (url: string, options?: RequestInit) => {};
+//   return (
+//     <AuthContext.Provider
+//       value={{
+//         user: null,
+//         signIn,
+//         signOut,
+//         fetchWithAuth,
+//         isLoading: false,
+//         error: null,
+//       }}
+//     >
+//       {children}
+//     </AuthContext.Provider>
+//   );
+// };
+
+// export const useAuth = () => {
+//   const context = useContext(AuthContext);
+//   if (!context) {
+//     throw new Error("useAuth must be used within an AuthProvider");
+//   }
+//   return context;
+// };
+
+// AuthProvider.tsx
+import * as Google from "expo-auth-session/providers/google";
+import * as SecureStore from "expo-secure-store";
 import * as WebBrowser from "expo-web-browser";
 import * as React from "react";
-import { useContext, useState } from "react";
+import { useState } from "react";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -12,39 +128,113 @@ export type AuthUser = {
   picture?: string;
   given_name: string;
   family_name?: string;
-  email_verified?: string;
-  exp?: number;
-  cookieExpiration?: number;
+  email_verified?: boolean;
 };
-const AuthContext = React.createContext({
-  user: null,
-  signIn: () => {},
-  signOut: () => {},
-  fetchWithAuth: async (url: string, options?: RequestInit) =>
-    Promise.resolve(new Response()),
-  isLoading: false,
-  error: null as AuthError | null,
-});
+
+type Ctx = {
+  user: AuthUser | null;
+  signIn: () => Promise<void>;
+  signOut: () => Promise<void>;
+  fetchWithAuth: (url: string, options?: RequestInit) => Promise<Response>;
+  isLoading: boolean;
+  error: Error | null;
+};
+
+const AuthContext = React.createContext<Ctx | null>(null);
+
+const ANDROID_CLIENT_ID =
+  "1067957663886-rqiovfuaqpsdeb8d42jmu104sri96her.apps.googleusercontent.com";
+const IOS_CLIENT_ID = "";
+const WEB_CLIENT_ID =
+  "1067957663886-rqiovfuaqpsdeb8d42jmu104sri96her.apps.googleusercontent.com";
+
+const TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token";
+const USERINFO_ENDPOINT = "https://openidconnect.googleapis.com/v1/userinfo";
+const ACCESS_KEY = "google_access_token";
+const IDTOKEN_KEY = "google_id_token";
+const REFRESH_KEY = "google_refresh_token";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<AuthError | null>(null);
+  const [error, setError] = useState<Error | null>(null);
 
-  const signIn = async () => {};
+  // KHÔNG set redirectUri — provider sẽ tự dùng URI hợp lệ cho Android
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    clientId:
+      "1067957663886-rqiovfuaqpsdeb8d42jmu104sri96her.apps.googleusercontent.com", // Web Client ID từ Google Console
+    scopes: ["profile", "email"],
+  });
 
-  const signOut = async () => {};
-  const fetchWithAuth = async (url: string, options?: RequestInit) => {};
+  const dump = (label: string, data: any) =>
+    console.log(`${label}:`, JSON.stringify(data, null, 2));
+
+  // Xử lý phản hồi
+  React.useEffect(() => {
+    if (!response) return;
+
+    if (response.type === "success") {
+      const { code, ...rest } = response.params as any;
+      if (!code) {
+        // hiếm khi, success nhưng không có code
+        dump("Auth success nhưng thiếu code", rest);
+      } else {
+        console.log("Auth success – code:", code);
+        dump("Các params khác", rest);
+      }
+    } else if (response.type === "error") {
+      // Lỗi do AuthSession
+      console.error("AuthSession error:", response.error);
+      dump("AuthSession error params", (response as any).params);
+    } else {
+      // cancel / dismiss / locked
+      console.warn("Auth flow kết thúc với type:", response.type);
+      dump("AuthSession raw response", response);
+    }
+  }, [response]);
+
+  const signIn = async () => {
+    try {
+      if (!request) {
+        console.warn("no request yet");
+        return;
+      }
+      console.log("redirectUri app:", request.redirectUri);
+      dump("PKCE", { codeVerifier: request.codeVerifier });
+
+      const result = await promptAsync(); // mở trình duyệt hệ thống
+      if (result.type === "error") {
+        console.error("promptAsync error:", result.error);
+        dump("promptAsync error params", (result as any).params);
+      } else if (result.type !== "success") {
+        console.warn("promptAsync finished with:", result.type);
+        dump("promptAsync result", result);
+      }
+    } catch (e: any) {
+      // Exception runtime (network, activity, v.v.)
+      console.error("Exception trong signIn:", e?.message || e);
+      dump("Exception object", e);
+      setError(e);
+    }
+  };
+
+  const signOut = async () => {
+    await SecureStore.deleteItemAsync(ACCESS_KEY);
+    await SecureStore.deleteItemAsync(REFRESH_KEY);
+    await SecureStore.deleteItemAsync(IDTOKEN_KEY);
+    setUser(null);
+  };
+
+  const fetchWithAuth = async (url: string, options?: RequestInit) => {
+    const token = await SecureStore.getItemAsync(ACCESS_KEY);
+    const headers = new Headers(options?.headers || {});
+    if (token) headers.set("Authorization", `Bearer ${token}`);
+    return fetch(url, { ...options, headers });
+  };
+
   return (
     <AuthContext.Provider
-      value={{
-        user: null,
-        signIn,
-        signOut,
-        fetchWithAuth,
-        isLoading: false,
-        error: null,
-      }}
+      value={{ user, signIn, signOut, fetchWithAuth, isLoading, error }}
     >
       {children}
     </AuthContext.Provider>
@@ -52,9 +242,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 };
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
+  const ctx = React.useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within an AuthProvider");
+  return ctx;
 };

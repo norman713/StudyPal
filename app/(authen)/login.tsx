@@ -1,21 +1,18 @@
 import authApi from "@/api/authApi";
 import CustomButton from "@/components/CustomButton";
+import Message from "@/components/message/Message";
 import TextInput from "@/components/TextInput";
 import { useAuth } from "@/context/auth";
 import { isValidEmail } from "@/util/validators";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link, router } from "expo-router";
-import { useState } from "react";
-import {
-  ActivityIndicator,
-  Image,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import React, { useState } from "react";
+import { Image, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import Loading from "../loading";
 
 export default function Login() {
+  const { user, isLoading } = useAuth();
+  const { signIn } = useAuth();
   const [loginRequest, setLoginRequest] = useState({
     email: "",
     password: "",
@@ -24,12 +21,12 @@ export default function Login() {
   const [message, setMessage] = useState({ title: "", description: "" });
   const [loading, setLoading] = useState(false);
 
-  const { isLoading } = useAuth();
+  // const { isLoading } = useAuth();
 
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator />
+        <Loading />
       </View>
     );
   }
@@ -42,7 +39,7 @@ export default function Login() {
     if (!loginRequest.email.trim() || !loginRequest.password.trim()) {
       setShowError(true);
       setMessage({
-        title: "Error",
+        title: "Login Error",
         description: "Please fill in both email and password.",
       });
       return;
@@ -114,10 +111,16 @@ export default function Login() {
 
       <View style={styles.containerSmall}>
         {showError && (
-          <Text style={{ color: "red", textAlign: "center", marginTop: 8 }}>
-            {message.description}
-          </Text>
+          <Message
+            visible={showError}
+            type="error"
+            title={message.title}
+            description={message.description}
+            onClose={() => setShowError(false)}
+            onOkPress={() => setShowError(false)}
+          />
         )}
+
         <CustomButton onPress={handleLogin}>Login</CustomButton>
         <View style={styles.divideContainer}>
           <View style={styles.divideLine} />
@@ -129,6 +132,7 @@ export default function Login() {
           bgColor="#FFFFFF"
           textColor="#1E282DA6"
           fontFamily="Poppins_400Regular"
+          onPress={signIn}
           icon={
             <Image
               source={require("@/assets/images/google-icon.png")}
@@ -146,6 +150,11 @@ export default function Login() {
           Sign up here
         </Link>
       </Text>
+      {loading && (
+        <View style={styles.overlay}>
+          <Loading />
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -153,8 +162,7 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    paddingTop: 165,
     paddingHorizontal: 25,
     backgroundColor: "white",
     gap: 30,
@@ -189,5 +197,12 @@ const styles = StyleSheet.create({
     color: "#7AB2D3",
     fontFamily: "Roboto_700Bold",
     fontWeight: "bold",
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.1)",
+    zIndex: 999,
   },
 });

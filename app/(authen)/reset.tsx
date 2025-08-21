@@ -5,6 +5,7 @@ import TextInput from "@/components/TextInput";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import Loading from "../loading";
 
 type RouteParams = { email?: string };
 
@@ -14,11 +15,11 @@ export default function Reset() {
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // show error giống Forgot
   const [showError, setShowError] = useState(false);
   const [message, setMessage] = useState({ title: "", description: "" });
 
   const handleReset = async () => {
+    if (loading) return;
     // reset error
     setShowError(false);
     setMessage({ title: "", description: "" });
@@ -100,18 +101,19 @@ export default function Reset() {
           />
         </View>
 
-        {/* Show error giống Forgot */}
         {showError && (
           <Text style={{ color: "red" }}>{message.description}</Text>
         )}
 
-        <CustomButton
-          onPress={loading ? undefined : handleReset}
-          disabled={loading}
-        >
-          {loading ? "Resetting..." : "Reset password"}
+        <CustomButton onPress={handleReset} disabled={loading}>
+          Reset password
         </CustomButton>
       </View>
+      {loading && (
+        <View style={styles.overlay}>
+          <Loading />
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -148,5 +150,12 @@ const styles = StyleSheet.create({
     fontSize: 36,
     textAlign: "center",
     color: "#7AB2D3",
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.1)",
+    zIndex: 999,
   },
 });

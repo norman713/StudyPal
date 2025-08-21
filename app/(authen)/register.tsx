@@ -2,9 +2,11 @@ import authApi from "@/api/authApi";
 import BackButton from "@/components/BackButton";
 import CustomButton from "@/components/CustomButton";
 import TextInput from "@/components/TextInput";
+
 import { router } from "expo-router";
 import React, { useState } from "react";
 import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import Loading from "../loading";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -70,10 +72,13 @@ export default function Register() {
           </View>
         </View>
 
-        <CustomButton onPress={loading ? undefined : handleRegister}>
-          {loading ? "Validating..." : "Continue"}
-        </CustomButton>
+        <CustomButton onPress={handleRegister}>Continue</CustomButton>
       </View>
+      {loading && (
+        <View style={styles.overlay}>
+          <Loading />
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -102,5 +107,12 @@ const styles = StyleSheet.create({
     fontSize: 36,
     textAlign: "center",
     color: "#7AB2D3",
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.1)",
+    zIndex: 999,
   },
 });
