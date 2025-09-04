@@ -68,7 +68,7 @@ export default function Login() {
       setShowError(false);
       setMessage({ title: "", description: "" });
 
-      router.push("/(me)/main");
+      router.push("/(team)/main");
     } catch (err: any) {
       // catch error
       const apiMessage =

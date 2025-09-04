@@ -111,7 +111,6 @@
 //   }
 //   return context;
 // };
-
 // AuthProvider.tsx
 import * as Google from "expo-auth-session/providers/google";
 import * as SecureStore from "expo-secure-store";
@@ -143,7 +142,7 @@ type Ctx = {
 const AuthContext = React.createContext<Ctx | null>(null);
 
 const ANDROID_CLIENT_ID =
-  "1067957663886-rqiovfuaqpsdeb8d42jmu104sri96her.apps.googleusercontent.com";
+  "1067957663886-sk4rkd325o5ld38hvevbl91tujkn146a.apps.googleusercontent.com";
 const IOS_CLIENT_ID = "";
 const WEB_CLIENT_ID =
   "1067957663886-rqiovfuaqpsdeb8d42jmu104sri96her.apps.googleusercontent.com";
@@ -161,8 +160,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // KHÔNG set redirectUri — provider sẽ tự dùng URI hợp lệ cho Android
   const [request, response, promptAsync] = Google.useAuthRequest({
-    clientId:
-      "1067957663886-rqiovfuaqpsdeb8d42jmu104sri96her.apps.googleusercontent.com", // Web Client ID từ Google Console
+    clientId: ANDROID_CLIENT_ID, // Web Client ID từ Google Console
     scopes: ["profile", "email"],
   });
 

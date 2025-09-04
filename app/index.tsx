@@ -1,8 +1,7 @@
-import useCustomFonts from "@/hook/useCustomFont";
-import { Image, StyleSheet, Text, View } from "react-native";
-// import { Colors } from "@/constants/Colors";
 import CustomButton from "@/components/CustomButton";
+import useCustomFonts from "@/hook/useCustomFont";
 import { router } from "expo-router";
+import { Image, StyleSheet, Text, View } from "react-native";
 
 export default function Index() {
   const { fontsLoaded } = useCustomFonts();
