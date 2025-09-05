@@ -71,6 +71,7 @@ export default function TeamInfo() {
         const team = res as unknown as {
           id: string;
           name: string;
+          avatarUrl?: string;
           description: string;
           teamCode: string;
           totalMembers: number;
@@ -99,8 +100,9 @@ export default function TeamInfo() {
     const fetchMembers = async () => {
       setIsLoading(true);
       try {
-        const response = await memberApi.getList(teamId, "", size); // cursor = "" for initial
-        setMembers(response.data.members || []);
+        const response = await memberApi.getList(teamId, "", size);
+        console.log("response api get list: ", response);
+        setMembers(response.members || []);
       } catch (error) {
         console.error("Error fetching member list:", error);
         Alert.alert("Error", "Failed to load members.");
@@ -308,13 +310,14 @@ export default function TeamInfo() {
   useEffect(() => {
     const fetchUserInfo = async () => {
       if (!userId) {
-        Alert.alert("Error", "User ID is missing."); // Hiện lỗi khi userId không có
+        Alert.alert("Error", "User ID is missing.");
         return;
       }
 
       setIsLoading(true);
       try {
         const response = await userApi.getUserInfo();
+        console.log("respone of user:", response);
         setUserInfo(response);
       } catch (error) {
         console.error("Error fetching user info:", error);

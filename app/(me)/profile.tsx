@@ -162,7 +162,6 @@ const styles = StyleSheet.create({
   gradient: {
     height: 180,
     paddingHorizontal: 20,
-    paddingTop: 10,
   },
 
   header: {
