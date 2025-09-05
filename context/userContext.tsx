@@ -1,8 +1,8 @@
 import React, { createContext, ReactNode, useContext, useState } from "react";
 
-interface User {
+export interface User {
   avatarUrl?: string;
-  username?: string;
+  name?: string;
   id?: string;
   dateOfBirth?: string;
   gender?: string;

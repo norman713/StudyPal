@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Image,
   StyleSheet,
@@ -7,13 +7,14 @@ import {
   View,
   ViewStyle,
 } from "react-native";
+import { Tooltip } from "react-native-paper";
 
 interface TeamItemProps {
   title: string;
-  imageSource: string; // Compatible with ImageSourcePropType
+  imageSource: string;
   isAdmin?: boolean;
   style?: ViewStyle;
-  onPress?: () => void; // Thêm onPress tùy chọn
+  onPress?: () => void;
 }
 
 export default function TeamItem({
@@ -21,20 +22,13 @@ export default function TeamItem({
   imageSource,
   isAdmin = false,
   style,
-  onPress, // Nhận prop onPress
+  onPress,
 }: TeamItemProps) {
-  const [showTooltip, setShowTooltip] = useState(false);
+  const adminIcon = require("@/assets/icon/Main_Component.png");
 
   return (
-    <View
-      style={[
-        styles.wrapper,
-        showTooltip && { zIndex: 999 }, // tăng zIndex nếu tooltip mở
-        style,
-      ]}
-    >
+    <View style={[styles.wrapper, style]}>
       <TouchableOpacity onPress={onPress}>
-        {/* Thêm onPress vào đây, nếu có */}
         <View style={styles.container}>
           {/* Left: Avatar + Title */}
           <View style={styles.leftSection}>
@@ -42,29 +36,20 @@ export default function TeamItem({
             <Text style={styles.title}>{title}</Text>
           </View>
 
-          {/* Right: Admin icon */}
+          {/* Right: Admin icon with Tooltip */}
           {isAdmin && (
-            <TouchableOpacity
-              style={styles.adminWrapper}
-              onPress={() => setShowTooltip(!showTooltip)}
-              activeOpacity={0.8}
-            >
-              <Image
-                src={imageSource}
-                style={styles.adminIcon}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
+            <Tooltip title={"You're admin"}>
+              <TouchableOpacity style={styles.adminWrapper} activeOpacity={0.8}>
+                <Image
+                  source={adminIcon}
+                  style={styles.adminIcon}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+            </Tooltip>
           )}
         </View>
       </TouchableOpacity>
-
-      {/* Tooltip */}
-      {isAdmin && showTooltip && (
-        <View style={styles.tooltipAbsolute}>
-          <Text style={styles.adminLabelText}>You're admin of this team.</Text>
-        </View>
-      )}
     </View>
   );
 }
@@ -110,23 +95,5 @@ const styles = StyleSheet.create({
   adminIcon: {
     width: 24,
     height: 24,
-  },
-  tooltipAbsolute: {
-    position: "absolute",
-    top: 50,
-    right: 20,
-    backgroundColor: "#fff",
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 10,
-    width: 100,
-  },
-  adminLabelText: {
-    fontSize: 12,
-    color: "#666",
   },
 });

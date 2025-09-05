@@ -1,8 +1,10 @@
 import authApi from "@/api/authApi";
+import userApi from "@/api/userApi";
 import CustomButton from "@/components/CustomButton";
 import Message from "@/components/message/Message";
 import TextInput from "@/components/TextInput";
 import { useAuth } from "@/context/auth";
+import { useUser } from "@/context/userContext";
 import { isValidEmail } from "@/util/validators";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link, router } from "expo-router";
@@ -17,6 +19,7 @@ export default function Login() {
     email: "",
     password: "",
   });
+  const { setUser } = useUser();
   const [showError, setShowError] = useState(false);
   const [message, setMessage] = useState({ title: "", description: "" });
   const [loading, setLoading] = useState(false);
@@ -35,6 +38,7 @@ export default function Login() {
     // Reset error
     setShowError(false);
     setMessage({ title: "", description: "" });
+
     // 1. Validate local
     if (!loginRequest.email.trim() || !loginRequest.password.trim()) {
       setShowError(true);
@@ -44,6 +48,7 @@ export default function Login() {
       });
       return;
     }
+
     // validate email type
     if (!isValidEmail(loginRequest.email.trim())) {
       setShowError(true);
@@ -53,18 +58,29 @@ export default function Login() {
       });
       return;
     }
+
     // call api
     setLoading(true);
     try {
+      // 1) login -> recive tokens
       const { accessToken, refreshToken } = await authApi.login(
         loginRequest.email.trim(),
         loginRequest.password.trim()
       );
 
+      // 2) save tokens
       await AsyncStorage.setItem("accessToken", accessToken);
       await AsyncStorage.setItem("refreshToken", refreshToken);
 
-      // login success then hide error
+      // 3) get user info
+      try {
+        const userInfo = await userApi.getUserInfo();
+        // 4) set user in context
+        setUser(userInfo);
+      } catch (userErr) {
+        console.error("Failed to fetch user info after login:", userErr);
+      }
+
       setShowError(false);
       setMessage({ title: "", description: "" });
 

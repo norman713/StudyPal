@@ -40,15 +40,15 @@ axiosInstance.interceptors.request.use(
       }
     }
 
-    console.log(
-      "Request:",
-      config.method?.toUpperCase(),
-      (config.baseURL || "") + (config.url || ""),
-      "Auth:",
-      (config.headers as any)?.Authorization ? "Bearer..." : "none",
-      "withCredentials:",
-      config.withCredentials
-    );
+    // console.log(
+    //   "Request:",
+    //   config.method?.toUpperCase(),
+    //   (config.baseURL || "") + (config.url || ""),
+    //   "Auth:",
+    //   (config.headers as any)?.Authorization ? "Bearer..." : "none",
+    //   "withCredentials:",
+    //   config.withCredentials
+    // );
 
     return config;
   },

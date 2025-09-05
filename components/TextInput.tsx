@@ -1,8 +1,8 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
-import { useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import {
   Platform,
   Pressable,
@@ -20,6 +20,9 @@ interface TextInputProps {
   editable?: boolean;
   isPassword?: boolean;
   isDate?: boolean;
+  rightIcon?: ReactNode;
+  initialDate?: string;
+  bgColor?: string;
 }
 
 export default function LoginInput({
@@ -28,12 +31,23 @@ export default function LoginInput({
   value,
   onChangeText,
   editable = true,
+  bgColor,
   isPassword = false,
   isDate = false,
+  rightIcon,
+  initialDate,
 }: TextInputProps) {
   const [secure, setSecure] = useState(isPassword);
   const [showPicker, setShowPicker] = useState(false);
-  const [date, setDate] = useState<Date>(new Date());
+  const [date, setDate] = useState<Date>(
+    initialDate ? new Date(initialDate) : new Date()
+  );
+
+  useEffect(() => {
+    if (initialDate) {
+      setDate(new Date(initialDate));
+    }
+  }, [initialDate]);
 
   const formattedDate = `${date.getDate().toString().padStart(2, "0")}/${(
     date.getMonth() + 1
@@ -50,7 +64,13 @@ export default function LoginInput({
   };
 
   return (
-    <View style={[styles.container, style]}>
+    <View
+      style={[
+        styles.container,
+        style,
+        { backgroundColor: bgColor || "#EDEDED" },
+      ]}
+    >
       <View style={styles.inputRow}>
         <TextInput
           placeholder={placeholder}
@@ -72,9 +92,10 @@ export default function LoginInput({
         )}
         {isDate && (
           <Pressable onPress={() => setShowPicker(true)} style={styles.icon}>
-            <Ionicons name="calendar" size={24} color="#1E201E" />
+            <Feather name="calendar" size={20} color="#7AB2D3" />
           </Pressable>
         )}
+        {rightIcon && <View style={styles.icon}>{rightIcon}</View>}
       </View>
       {showPicker && (
         <DateTimePicker

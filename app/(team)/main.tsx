@@ -11,7 +11,7 @@ import TeamItem from "@/components/team/TeamItem";
 import { useTeamContext } from "@/context/teamContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Alert,
   Dimensions,
@@ -48,34 +48,35 @@ export default function TeamScreen() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const userId = "554c0f1d-b1f4-4466-8778-8caaff792b45";
   const { setId } = useTeamContext();
+  const fetchTeams = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response = await teamApi.getAll(userId, cursor, size);
+      const rawTeams = Array.isArray((response as any)?.teams)
+        ? (response as any).teams
+        : [];
+
+      const data: Team[] = rawTeams.map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        isAdmin: item.managedByUser,
+        imageSource: item.avatarUrl,
+      }));
+
+      setTeams(data);
+      setFilteredTeams(data);
+      setAllTeams(data);
+      console.log("Fetched teams:", rawTeams);
+    } catch (error) {
+      console.error("Error fetching teams", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [cursor, size]);
 
   useEffect(() => {
-    const fetchTeams = async () => {
-      try {
-        setIsLoading(true);
-
-        const response = await teamApi.getAll(userId, cursor, size);
-
-        const data: Team[] = Array.isArray(response.teams)
-          ? response.teams.map((item: any) => ({
-              id: item.id,
-              name: item.name,
-              isAdmin: item.managedByUser,
-              imageSource: item.avatarUrl,
-            }))
-          : [];
-        setTeams(data);
-        console.log(response.teams);
-        setFilteredTeams(data);
-      } catch (error) {
-        console.error("Error fetching teams", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchTeams();
-  }, [cursor, size]);
+  }, [fetchTeams]);
 
   const getVisibleTeams = () => {
     if (activeFilter === "joined") return filteredTeams;
@@ -100,15 +101,58 @@ export default function TeamScreen() {
 
   const handleSaveNewTeam = async (name: string, description: string) => {
     try {
+      setIsLoading(true);
+
       const response = await teamApi.create(userId, name, description);
-      console.log("Team created successfully:", response);
-      const newTeam = response;
-      setFilteredTeams([newTeam, ...filteredTeams]);
+      console.log("Create response:", response);
+
+      let created: any = null;
+      if (response && typeof response === "object") {
+        if ("id" in response) {
+          created = response;
+        } else if (
+          "data" in response &&
+          response.data &&
+          typeof response.data === "object"
+        ) {
+          created = response.data;
+        } else if ((response as any).team) {
+          // some APIs return { team: {...} }
+          created = (response as any).team;
+        }
+      }
+
+      if (!created) {
+        // fallback: show message và không cập nhật state
+        console.warn("Unexpected create response shape:", response);
+        Alert.alert(
+          "Warning",
+          "Team was created but response shape is unexpected. Please refresh."
+        );
+        setShowCreatePopup(false);
+        return;
+      }
+      const newTeam: Team = {
+        id: created.id,
+        name: created.name ?? name,
+        isAdmin: created.managedByUser ?? true,
+        imageSource: created.avatarUrl ?? undefined,
+      };
+      // PREPEND team mới vào state để UI thấy ngay (Option A)
+      setFilteredTeams((prev) => [newTeam, ...prev]);
+      setTeams((prev) => [newTeam, ...prev]);
+      setAllTeams((prev) => [newTeam, ...prev]);
+
+      setShowCreatePopup(false);
+      Alert.alert("Success", "Team created successfully!");
     } catch (error) {
       console.error("Error creating team:", error);
       Alert.alert("Error", "There was an error creating the team.");
+    } finally {
+      setIsLoading(false);
     }
   };
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -170,8 +214,8 @@ export default function TeamScreen() {
               imageSource={team.imageSource}
               isAdmin={team.isAdmin}
               onPress={() => {
-                setId(team.id); // Cập nhật teamId trong context
-                router.push(`/Team/${team.id}?userId=${userId}`);
+                setId(team.id);
+                router.push(`/(team)/${team.id}?userId=${userId}` as any);
               }}
             />
           )}

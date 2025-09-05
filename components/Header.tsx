@@ -31,6 +31,18 @@ export default function Header({ showMenu = true, onLogout = () => {} }) {
   };
   const { user } = useUser();
 
+  // useEffect(() => {
+  //   if (!user) {
+  //     console.log("Header: no user in context");
+  //     return;
+  //   }
+  //   console.log("Header: user:", {
+  //     username: user.name,
+  //     avatarUrl: user.avatarUrl,
+  //     id: user.id,
+  //   });
+  // }, [user]);
+
   useEffect(() => {
     const loadActiveTab = () => {
       let tab = "Plan";
@@ -68,7 +80,7 @@ export default function Header({ showMenu = true, onLogout = () => {} }) {
   const handleSelectOption = (option: string) => {
     setIsDropdownVisible(false);
     if (option === "Profile") {
-      router.push("/(me)/main");
+      router.push("/(me)/profile");
     } else if (option === "Log out") {
       onLogout();
 
@@ -78,7 +90,7 @@ export default function Header({ showMenu = true, onLogout = () => {} }) {
   };
 
   return (
-    <View style={{ width: "100%" }}>
+    <View>
       <View style={styles.container}>
         {showMenu && (
           <LinearGradient
@@ -101,7 +113,7 @@ export default function Header({ showMenu = true, onLogout = () => {} }) {
             color={"#7AB2D3"}
             style={styles.iconDown}
           />
-          <Text style={styles.userName}>{user?.username}</Text>
+          <Text style={styles.userName}>{user?.name}</Text>
           <Image
             source={{
               uri:
@@ -112,6 +124,7 @@ export default function Header({ showMenu = true, onLogout = () => {} }) {
           />
         </Pressable>
       </View>
+
       <View style={styles.bottomBorder} />
 
       {isDropdownVisible && (
@@ -154,7 +167,8 @@ const styles = StyleSheet.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 10,
+    paddingTop: 20,
+    paddingBottom: 10,
     width: "100%",
     backgroundColor: "transparent",
     paddingHorizontal: 20,
