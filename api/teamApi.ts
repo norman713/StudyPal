@@ -10,13 +10,11 @@ interface GetTeamsResponse {
 }
 
 const teamApi = {
-getAll(userId: string, cursor: string, size: number): Promise<GetTeamsResponse> {
-  let url = "/teams/all?userId=" + userId + "&size=" + size;
+getAll( cursor: string, size: number): Promise<GetTeamsResponse> {
+  let url = "/teams/all?size="+ size;
   if (cursor.length > 0) {
     url += "&cursor=" + cursor;
   }
-  // axiosInstance.get() theo TS trả Promise<AxiosResponse<GetTeamsResponse>>
-  // unwrap .data to return Promise<GetTeamsResponse>
   return axiosInstance
     .get<GetTeamsResponse>(url)
     .then((res: any) => {
@@ -31,6 +29,7 @@ getAll(userId: string, cursor: string, size: number): Promise<GetTeamsResponse> 
   getTeamInfo(teamId: string) {
     return axiosInstance.get(`/teams/${teamId}`);
   },
+  
   create(userId: string, name: string, description: string) {
     const url = "/teams?/userId=" + userId;
     const body = {

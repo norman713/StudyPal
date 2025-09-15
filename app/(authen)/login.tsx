@@ -145,8 +145,8 @@ export default function Login() {
         </View>
 
         <CustomButton
-          bgColor="#FFFFFF"
           textColor="#1E282DA6"
+          bgColor="#fff"
           fontFamily="Poppins_400Regular"
           onPress={signIn}
           icon={
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: "Roboto_700Bold",
   },
-  logiGGBtn: { backgroundColor: "#FFF" },
+
   divideLine: { flex: 1, height: 2, backgroundColor: "#9E9E9E" },
   divideContainer: {
     flexDirection: "row",

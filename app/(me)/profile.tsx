@@ -199,6 +199,7 @@ const styles = StyleSheet.create({
   },
   form: {
     marginTop: 33,
+    marginBottom: 33,
     gap: 20,
   },
   inputWrapper: {
@@ -213,7 +214,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderRadius: 10,
-    borderColor: "#E0E0E0",
+    //borderColor: "#E0E0E0",
     elevation: 5,
     zIndex: 999,
   },

@@ -94,7 +94,7 @@ export default function Header({ showMenu = true, onLogout = () => {} }) {
       <View style={styles.container}>
         {showMenu && (
           <LinearGradient
-            colors={["#1E282D", "#7AB2D3"]}
+            colors={["#B9E5E8", "#7AB2D3"]}
             style={styles.iconContainer}
           >
             <Pressable onPress={toggleSidebar}>

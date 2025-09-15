@@ -12,12 +12,16 @@ type CustomButtonProps = ButtonProps & {
   fontFamily?: string;
   fontSize?: number;
   lineHeight?: number;
+  borderWidth?: number;
+  borderColor?: string;
 };
 
 export default function CustomButton({
   children,
   icon,
   style,
+  borderWidth = 1,
+  borderColor = "rgba(0,0,0,0.15)",
   textColor = "white",
   bgColor = "#7AB2D3",
   fontFamily = "Poppins_700Bold",
@@ -33,7 +37,7 @@ export default function CustomButton({
         mode="elevated"
         textColor={textColor}
         buttonColor={bgColor}
-        style={[styles.buttonBase, style]}
+        style={[styles.buttonBase, { borderWidth, borderColor }, style]}
         labelStyle={[styles.labelBase, { fontSize, fontFamily, lineHeight }]}
         contentStyle={styles.contentBase}
         icon={() => icon || null}
@@ -53,7 +57,7 @@ export default function CustomButton({
       mode="elevated"
       textColor={textColor}
       buttonColor={bgColor}
-      style={[styles.buttonBase, style]}
+      style={[styles.buttonBase, { borderWidth, borderColor }, style]}
       labelStyle={[styles.labelBase, { fontSize, fontFamily, lineHeight }]}
       contentStyle={styles.contentBase}
       icon={() => icon || null}
@@ -67,7 +71,7 @@ export default function CustomButton({
 const styles = StyleSheet.create({
   buttonBase: {
     borderRadius: 10,
-    paddingHorizontal: 10,
+    borderWidth: 2, // Đặt giá trị mặc định là 1
     width: "100%",
   },
   labelBase: {

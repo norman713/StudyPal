@@ -1,6 +1,5 @@
-import memberApi from "@/api/memberApi";
+import memberApi, { Member } from "@/api/memberApi";
 import teamApi from "@/api/teamApi";
-import userApi from "@/api/userApi";
 import Header from "@/components/Header";
 import ProfileCard from "@/components/popup/ProfileCard";
 import { useTeamContext } from "@/context/teamContext";
@@ -22,13 +21,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-interface Member {
-  userId: string; // Unique identifier for the user
-  username: string; // Username of the member
-  avatarUrl: string; // URL of the user's avatar image
-  role: string; // Role of the user (e.g., "CREATOR", "ADMIN", "MEMBER")
-}
-
 export default function TeamInfo() {
   const router = useRouter();
   const { teamId } = useLocalSearchParams<{ teamId: string }>();
@@ -42,27 +34,6 @@ export default function TeamInfo() {
   const [members, setMembers] = useState<Member[]>([]);
   const { setId: setTeamID } = useTeamContext();
 
-  //get user info in this team
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      setIsLoading(true);
-      try {
-        const response = await memberApi.getUserInfo(userId, teamId);
-        setRole(response.data.role);
-      } catch (error) {
-        console.error("Error fetching user info:", error);
-        Alert.alert("Error", "Failed to load user information.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (userId && teamId) {
-      fetchUserInfo();
-    }
-  }, [userId, teamId, setRole]);
-
-  //get team info
   useEffect(() => {
     setIsLoading(true);
     teamApi
@@ -306,36 +277,12 @@ export default function TeamInfo() {
       setIsLoading(false);
     }
   };
-  // Fetch user info
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      if (!userId) {
-        Alert.alert("Error", "User ID is missing.");
-        return;
-      }
-
-      setIsLoading(true);
-      try {
-        const response = await userApi.getUserInfo();
-        console.log("respone of user:", response);
-        setUserInfo(response);
-      } catch (error) {
-        console.error("Error fetching user info:", error);
-        Alert.alert("Error", "Failed to load user information.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUserInfo();
-  }, [userId]);
 
   return (
     <SafeAreaView
       style={{
         flex: 1,
         flexDirection: "column",
-
         backgroundColor: "#FFFFFF",
         gap: 20,
       }}
@@ -361,7 +308,6 @@ export default function TeamInfo() {
         {/* Team Name */}
         <View style={styles.teamNameContainer}>
           {role === "CREATOR" ? (
-            // If the role is CREATOR, allow editing
             isEditing ? (
               <TextInput
                 style={styles.teamNameInput}
@@ -477,7 +423,7 @@ export default function TeamInfo() {
                         style={styles.memberAvatar}
                       />
                       <View style={{ gap: 5 }}>
-                        <Text style={styles.memberName}>{item.username}</Text>
+                        <Text style={styles.memberName}>{item.name}</Text>
                         <Text
                           style={{ color: "rgba(0, 0, 0, 0.5)", fontSize: 12 }}
                         >

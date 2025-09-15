@@ -9,7 +9,7 @@ import CreateTeamPopup from "@/components/popup/CreateTeam";
 import JoinPopup from "@/components/popup/JoinTeam";
 import TeamItem from "@/components/team/TeamItem";
 import { useTeamContext } from "@/context/teamContext";
-import { Ionicons } from "@expo/vector-icons";
+import Feather from "@expo/vector-icons/Feather";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
@@ -46,12 +46,11 @@ export default function TeamScreen() {
   const [cursor, setCursor] = useState<string>("");
   const [size, setSize] = useState<number>(10);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const userId = "554c0f1d-b1f4-4466-8778-8caaff792b45";
   const { setId } = useTeamContext();
   const fetchTeams = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await teamApi.getAll(userId, cursor, size);
+      const response = await teamApi.getAll(cursor, size);
       const rawTeams = Array.isArray((response as any)?.teams)
         ? (response as any).teams
         : [];
@@ -117,7 +116,6 @@ export default function TeamScreen() {
         ) {
           created = response.data;
         } else if ((response as any).team) {
-          // some APIs return { team: {...} }
           created = (response as any).team;
         }
       }
@@ -192,7 +190,7 @@ export default function TeamScreen() {
         <View>
           <CustomButton
             fontSize={16}
-            icon={<Ionicons name="add-circle-sharp" size={22} color="#fff" />}
+            icon={<Feather name="plus-circle" size={22} color="#fff" />}
             onPress={() => setShowJoinPopup(true)}
             bgColor="#7AB2D3"
             textColor="#fff"
@@ -215,7 +213,7 @@ export default function TeamScreen() {
               isAdmin={team.isAdmin}
               onPress={() => {
                 setId(team.id);
-                router.push(`/(team)/${team.id}?userId=${userId}` as any);
+                router.push(`/(team)/${team.id}?` as any);
               }}
             />
           )}

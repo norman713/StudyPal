@@ -39,17 +39,18 @@ export default function ProfileCard({
 
     const fetchTeamInfo = async () => {
       try {
-        console.log("in useEffect:", id);
+        console.log("user id useEffect:", id);
         const response = await userApi.getUserInfo(id);
         const user = {
           userId: response.id,
-          username: response.username,
+          username: response.name,
           dateOfBirth: response.dateOfBirth,
           gender: response.gender,
           avatarUrl: response.avatarUrl,
         };
 
         setUserInfo(user);
+        console.log("choosen user:", user);
       } catch (error) {
         Alert.alert("Error", "Failed to load user information.");
       }
@@ -58,7 +59,7 @@ export default function ProfileCard({
     fetchTeamInfo();
   }, [id]);
 
-  if (!visible || !userInfo) return null; // 🔥 Kiểm tra cả `visible` và `userInfo`
+  if (!visible || !userInfo) return null;
 
   return (
     <Modal visible={visible} transparent onRequestClose={onClose}>
@@ -102,7 +103,7 @@ export default function ProfileCard({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.25)", // Semi-transparent background
+    backgroundColor: "rgba(0, 0, 0, 0.25)",
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
@@ -110,7 +111,7 @@ const styles = StyleSheet.create({
 
   popup: {
     width: "60%",
-    backgroundColor: "#fff", // White background for the bottom part of the card
+    backgroundColor: "#fff",
     borderRadius: 15,
     shadowColor: "#000",
     shadowOpacity: 0.2,

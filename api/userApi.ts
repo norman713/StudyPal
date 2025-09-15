@@ -7,7 +7,7 @@ interface UserInfoResponse {
   id: string
 }
 const userApi = {
-  getUserInfo(): Promise<UserInfoResponse> {
+  getUserInfo(id: string): Promise<UserInfoResponse> {
     let url = "/users"
     return axiosInstance.get(url);
   },

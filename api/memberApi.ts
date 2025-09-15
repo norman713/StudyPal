@@ -1,4 +1,17 @@
 import axiosInstance from "./axiosConfig";
+
+export interface  Member {
+  userId: string;
+  name: string;
+  role: string;
+  avatarUrl: string;
+}
+
+interface MemberListResponse {
+  members: Member[];
+  nextCursor: string | null;
+  total: number;
+}
 const memberApi= {
 join(userId: string, teamCode: string){
     const url="/members?userId="+userId+"&teamCode="+teamCode;
@@ -6,19 +19,14 @@ join(userId: string, teamCode: string){
         params:{userId},
     })
 },
-getUserInfo(userId: string, teamId: string){
-    const url="/members?userId="+userId+"&teamId="+teamId;
-    return axiosInstance.get(url);
+getList(teamId: string, cursor: string, size: number): Promise<MemberListResponse> {
+  let url = `members/all?teamId=${teamId}&size=${size}`;
+  if (cursor) {
+    url += `&cursor=${cursor}`;
+  }
+  return axiosInstance.get(url);
 },
-getList(teamId: string, cursor: string, size: number){
 
-    let url="members/all?teamId="+teamId+"&size"+ size;
-       if(cursor.length===0){
-            url +="&cursor="+ cursor;
-        }
-        return axiosInstance.get(url);
-
-},
  deleteMember(userId: string, teamId: string, memberId: string) {
   const url = "/members?userId=" + userId;
   return axiosInstance.delete(url, {
